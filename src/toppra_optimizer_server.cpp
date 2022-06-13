@@ -177,8 +177,8 @@ void execute(const toppra_optimizer_ros::OptimizeGoalConstPtr& goal, Server* as)
   Eigen::Matrix<toppra::value_type, 1, 2> interval2;
   interval2 = ca->pathInterval();
 
-  // if (true)
-  //     std::cout << "ca->validate() = " << ca->validate() << std::endl;
+  if (true)
+      std::cout << "ca->validate() = " << ca->validate() << std::endl;
 
   //how many thetas you want
   const int length2 = plan_size; //same amount as was in the original plan

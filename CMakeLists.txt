@@ -18,6 +18,9 @@ find_package(catkin REQUIRED COMPONENTS
 find_package(Boost REQUIRED COMPONENTS system)
 find_package(Eigen3)
 
+find_package(toppra)
+find_package(NumCpp)
+
 
 add_action_files(
   DIRECTORY action
@@ -62,6 +65,7 @@ add_executable(toppra_optimizer_server src/toppra_optimizer_server.cpp)
 
 target_link_libraries(
   toppra_optimizer_server
+  PUBLIC toppra::toppra
   ${catkin_LIBRARIES}
 )
 add_dependencies(
