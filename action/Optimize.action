@@ -1,8 +1,9 @@
 #send trajectory to optimize
 trajectory_msgs/JointTrajectory trajectory
----
-#whether or not optimization was successful
-bool optimization_success
+
 ---
 #optimized trajectory is sent back
 trajectory_msgs/JointTrajectory optimized_trajectory
+---
+#whether or not optimization was successful
+bool optimization_success

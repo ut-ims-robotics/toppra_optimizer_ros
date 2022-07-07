@@ -121,7 +121,7 @@ void execute(const toppra_optimizer_ros::OptimizeGoalConstPtr& goal, Server* as)
   }
 
   //boundary condition. 2 means we specify acceleration, after that starting/ending acceleration is specified
-  toppra::BoundaryCond bc = makeBoundaryCond(2, { 0, 0, 0, 0, 0, 0, 0 });
+  toppra::BoundaryCond bc = makeBoundaryCond(2, { 0, 0, 0, 0, 0, 0 }); //TODO fix boundary condition to be defined with dof
   std::array<toppra::BoundaryCond, 2> bc_type{ bc, bc };
 
   auto toppra_joint_positions = makeVectors(joint_positions);
@@ -134,17 +134,11 @@ void execute(const toppra_optimizer_ros::OptimizeGoalConstPtr& goal, Server* as)
 
   //set vel and acc limit and put them as constrains
 
-  //////////////////////////////////////////////////
-  //
-  // IMPORTANT!!!
-  //
-  // WHAT DO WE DO WITH THE VELOCITY AND ACCELERATION LIMITS?
-  //
-  //////////////////////////////////////////////////
-  auto velLimitLower = -0.21750 * toppra::Vector::Ones(dof);
-  auto velLimitUpper = 0.21750 * toppra::Vector::Ones(dof);
-  auto accLimitLower = -0.18750 * toppra::Vector::Ones(dof);
-  auto accLimitUpper = 0.18750 * toppra::Vector::Ones(dof);
+  //TODO read limits from param server according to joint names from trajectory
+  auto velLimitLower = -2.1750 * 0.7 * toppra::Vector::Ones(dof);
+  auto velLimitUpper = 2.1750 * 0.7 * toppra::Vector::Ones(dof);
+  auto accLimitLower = -1.8750 * 0.7 * toppra::Vector::Ones(dof);
+  auto accLimitUpper = 1.8750 * 0.7 * toppra::Vector::Ones(dof);
 
   toppra::LinearConstraintPtr ljv, lja;
   ljv = std::make_shared<toppra::constraint::LinearJointVelocity>
@@ -231,11 +225,12 @@ void execute(const toppra_optimizer_ros::OptimizeGoalConstPtr& goal, Server* as)
   final_plan.joint_names = trajectory_to_optimize.joint_names;
   final_plan.header = trajectory_to_optimize.header;
 
-  feedback_.optimized_trajectory = final_plan;
-  result_.optimization_success = true;
+  result_.optimized_trajectory = final_plan;
+  feedback_.optimization_success = true;
 
-  as->setSucceeded();
-
+  as->publishFeedback(feedback_);
+  as->setSucceeded(result_);
+  
 }
 
 
