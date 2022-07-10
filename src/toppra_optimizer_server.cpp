@@ -169,13 +169,21 @@ void execute(const toppra_optimizer_ros::OptimizeGoalConstPtr& goal, Server* as)
 
   }
 
+  // const std::vector<double> joint_velocity_limits_c = joint_velocity_limits;
+  // const std::vector<double> joint_accelaration_limits_c = joint_accelaration_limits;
 
+  //WIP: convert std vector to toppra(Eigen) vector. currently build fails
+  auto velLimitLower = -toppra::Vector(joint_velocity_limits.data());
+  auto velLimitUpper = toppra::Vector(joint_velocity_limits.data());
+
+  auto accLimitLower = -toppra::Vector(joint_accelaration_limits.data());
+  auto accLimitUpper = toppra::Vector(joint_accelaration_limits.data());
   
-  //TODO convert std vector into toppra vector and apply is limits
-  auto velLimitLower = -2.1750 * 0.7 * toppra::Vector::Ones(dof);
-  auto velLimitUpper = 2.1750 * 0.7 * toppra::Vector::Ones(dof);
-  auto accLimitLower = -1.8750 * 0.7 * toppra::Vector::Ones(dof);
-  auto accLimitUpper = 1.8750 * 0.7 * toppra::Vector::Ones(dof);
+
+  // auto velLimitLower = -2.1750 * 0.7 * toppra::Vector::Ones(dof);
+  // auto velLimitUpper = 2.1750 * 0.7 * toppra::Vector::Ones(dof);
+  // auto accLimitLower = -1.8750 * 0.7 * toppra::Vector::Ones(dof);
+  // auto accLimitUpper = 1.8750 * 0.7 * toppra::Vector::Ones(dof);
 
   toppra::LinearConstraintPtr ljv, lja;
   ljv = std::make_shared<toppra::constraint::LinearJointVelocity>
