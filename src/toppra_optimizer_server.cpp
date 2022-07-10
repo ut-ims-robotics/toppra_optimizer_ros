@@ -121,7 +121,8 @@ void execute(const toppra_optimizer_ros::OptimizeGoalConstPtr& goal, Server* as)
   }
 
   //boundary condition. 2 means we specify acceleration, after that starting/ending acceleration is specified
-  toppra::BoundaryCond bc = makeBoundaryCond(2, { 0, 0, 0, 0, 0, 0 }); //TODO fix boundary condition to be defined with dof
+  const std::vector<double> bound_cond_zeros(0, dof); //boundary condition is defined with the number of joints in mind
+  toppra::BoundaryCond bc = makeBoundaryCond(2, bound_cond_zeros);
   std::array<toppra::BoundaryCond, 2> bc_type{ bc, bc };
 
   auto toppra_joint_positions = makeVectors(joint_positions);
@@ -135,6 +136,42 @@ void execute(const toppra_optimizer_ros::OptimizeGoalConstPtr& goal, Server* as)
   //set vel and acc limit and put them as constrains
 
   //TODO read limits from param server according to joint names from trajectory
+
+  std::vector<std::string> joint_names;
+  std::vector<double> joint_velocity_limits;
+  std::vector<double> joint_accelaration_limits;
+
+  for (auto &&joint_name : trajectory_to_optimize.joint_names)
+  {
+    joint_names.push_back(joint_name);
+  }
+
+  for (auto &&joint_name : joint_names)
+  {
+    double vel_limit, acc_limit;
+    if (ros::param::get("/robot_description_planning/joint_limits/"+joint_name+"/max_velocity", vel_limit))
+    {
+      joint_velocity_limits.push_back(vel_limit);
+    }
+    else
+    {
+      //should through error
+    }
+
+    if (ros::param::get("/robot_description_planning/joint_limits/"+joint_name+"/max_acceleration", acc_limit))
+    {
+      joint_accelaration_limits.push_back(acc_limit);
+    }
+    else
+    {
+      //should through error
+    }
+
+  }
+
+
+  
+  //TODO convert std vector into toppra vector and apply is limits
   auto velLimitLower = -2.1750 * 0.7 * toppra::Vector::Ones(dof);
   auto velLimitUpper = 2.1750 * 0.7 * toppra::Vector::Ones(dof);
   auto accLimitLower = -1.8750 * 0.7 * toppra::Vector::Ones(dof);

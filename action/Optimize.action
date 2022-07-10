@@ -1,6 +1,5 @@
 #send trajectory to optimize
 trajectory_msgs/JointTrajectory trajectory
-
 ---
 #optimized trajectory is sent back
 trajectory_msgs/JointTrajectory optimized_trajectory
