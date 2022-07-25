@@ -155,7 +155,9 @@ void execute(const toppra_optimizer_ros::OptimizeGoalConstPtr& goal, Server* as)
     }
     else
     {
-      //should through error
+      
+      ROS_ERROR_STREAM("Could not find ros parameter for joint velocity limit for joint " << joint_name);
+      //should through exception
     }
 
     if (ros::param::get("/robot_description_planning/joint_limits/"+joint_name+"/max_acceleration", acc_limit))
@@ -164,7 +166,8 @@ void execute(const toppra_optimizer_ros::OptimizeGoalConstPtr& goal, Server* as)
     }
     else
     {
-      //should through error
+      ROS_ERROR_STREAM("Could not find ros parameter joint acceleration limit for joint " << joint_name);
+      //should through exception
     }
 
   }
@@ -173,17 +176,21 @@ void execute(const toppra_optimizer_ros::OptimizeGoalConstPtr& goal, Server* as)
   // const std::vector<double> joint_accelaration_limits_c = joint_accelaration_limits;
 
   //WIP: convert std vector to toppra(Eigen) vector. currently build fails
-  auto velLimitLower = -toppra::Vector(joint_velocity_limits.data());
-  auto velLimitUpper = toppra::Vector(joint_velocity_limits.data());
+  // auto velLimitLower = -toppra::Vector(joint_velocity_limits.data());
+  // auto velLimitUpper = toppra::Vector(joint_velocity_limits.data());
 
-  auto accLimitLower = -toppra::Vector(joint_accelaration_limits.data());
-  auto accLimitUpper = toppra::Vector(joint_accelaration_limits.data());
-  
+  // auto accLimitLower = -toppra::Vector(joint_accelaration_limits.data());
+  // auto accLimitUpper = toppra::Vector(joint_accelaration_limits.data());
 
-  // auto velLimitLower = -2.1750 * 0.7 * toppra::Vector::Ones(dof);
-  // auto velLimitUpper = 2.1750 * 0.7 * toppra::Vector::Ones(dof);
-  // auto accLimitLower = -1.8750 * 0.7 * toppra::Vector::Ones(dof);
-  // auto accLimitUpper = 1.8750 * 0.7 * toppra::Vector::Ones(dof);
+  double velMin = *std::min_element(joint_velocity_limits.begin(), joint_velocity_limits.end());  //current workaround for toppra vector issue
+  double accMin = *std::min_element(joint_accelaration_limits.begin(), joint_accelaration_limits.end());
+
+  auto velLimitLower = -1.0 * velMin * toppra::Vector::Ones(dof);
+  auto velLimitUpper = velMin * toppra::Vector::Ones(dof);
+  auto accLimitLower = -1.0 * accMin * toppra::Vector::Ones(dof);
+  auto accLimitUpper = accMin * toppra::Vector::Ones(dof);
+
+  // auto velLimitLowerT = toppra::Vector::
 
   toppra::LinearConstraintPtr ljv, lja;
   ljv = std::make_shared<toppra::constraint::LinearJointVelocity>
